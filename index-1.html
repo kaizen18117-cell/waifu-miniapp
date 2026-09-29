@@ -22,6 +22,24 @@ input::placeholder{color:var(--mu)}
 .cmd code{font:600 15px ui-monospace,monospace;color:#9fc0ff}.cmd .mu{margin-top:2px}
 #toast{position:fixed;left:50%;bottom:26px;transform:translateX(-50%);background:rgba(0,0,0,.82);color:#fff;padding:8px 14px;border-radius:18px;font-size:13px;opacity:0;pointer-events:none;transition:opacity .2s}
 #toast.on{opacity:1}
+.ti{width:44px;height:60px;object-fit:cover;border-radius:8px;flex:none;background:#8883}
+.grid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin:8px 0}
+.gc{background:var(--card);border-radius:12px;padding:6px;overflow:hidden;opacity:.6}.gc.own{opacity:1;outline:2px solid var(--ac)}
+.gc b{display:block;font-size:12.5px;margin-top:5px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gc .mu{display:block;font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.gi{width:100%;aspect-ratio:3/4;object-fit:cover;border-radius:8px;display:block;background:#8883}
+.more{width:100%;padding:10px;border:0;border-radius:10px;background:var(--ac);color:#fff;font-size:14px;margin:6px 0}
+#mdl{position:fixed;inset:0;background:rgba(0,0,0,.88);display:none;flex-direction:column;align-items:center;justify-content:center;gap:6px;padding:16px;color:#fff;text-align:center;z-index:9}
+#mdl.on{display:flex}#mdl img{max-width:100%;max-height:74vh;border-radius:12px}
+#sh{position:fixed;inset:0;background:rgba(0,0,0,.8);display:none;align-items:flex-end;justify-content:center;z-index:10}
+#sh.on{display:flex}
+.shb{width:100%;max-width:520px;max-height:92vh;overflow:auto;background:#151a2b;border-radius:18px 18px 0 0;padding:14px;display:flex;flex-direction:column;gap:8px}
+.shb img{width:100%;max-height:42vh;object-fit:contain;border-radius:10px;background:#0006}
+.shb input,.shb select{width:100%;padding:10px;border-radius:10px;border:1px solid rgba(255,255,255,.12);background:rgba(255,255,255,.06);color:#fff;font-size:15px}
+.shb select option{color:#000}
+.shb button{padding:11px;border:0;border-radius:10px;font-size:14px;color:#fff;background:var(--ac)}
+.shb .bd{background:#c0392b}.shb .bx{background:rgba(255,255,255,.12)}
+#shm{min-height:18px;font-size:13px;color:#ffb3b3;text-align:center}
 </style></head><body>
 <div id="app"><p class="mu">Yuklanmoqda…</p></div>
 <script>
@@ -51,7 +69,7 @@ const CMDS=[
 let tmr;function toast(t){const e=$("#toast");e.textContent=t;e.className="on";clearTimeout(tmr);tmr=setTimeout(()=>e.className="",1600)}
 function copy(t){try{if(navigator.clipboard&&navigator.clipboard.writeText){return navigator.clipboard.writeText(t)}}catch(e){}
   const a=document.createElement("textarea");a.value=t;document.body.appendChild(a);a.select();try{document.execCommand("copy")}catch(e){}a.remove();return Promise.resolve()}
-let D,tab="h",flt=0,q="";
+let D,tab="h",flt=0,q="",lim=60;
 async function load(){
   const p=new URLSearchParams(location.search).get("d");
   if(!p)throw 0;
@@ -66,13 +84,13 @@ function draw(){
   <div><b>${D.x.toLocaleString()}</b><span class="mu">⭐ XP</span></div>
   <div><b>${D.w}</b><span class="mu">⚔️ g‘alaba</span></div></div>
   <div class="mu" style="margin-top:8px;text-align:center">📚 ${h.length} ta personaj · ${copies} nusxa</div></div>
-  <div class="tabs"><button data-t="h" class="${tab=="h"?"on":""}">💖 Harem</button><button data-t="s" class="${tab=="s"?"on":""}">🧩 To‘plamlar</button><button data-t="c" class="${tab=="c"?"on":""}">📜 Buyruqlar</button></div>`;
-  if(tab=="h"){
+  <div class="tabs"><button data-t="h" class="${tab=="h"?"on":""}">💖 Harem</button><button data-t="a" class="${tab=="a"?"on":""}">🆕 Katalog</button><button data-t="s" class="${tab=="s"?"on":""}">🧩 To‘plamlar</button><button data-t="c" class="${tab=="c"?"on":""}">📜 Buyruqlar</button></div>`;
+  if(tab=="a"){html+=catalogHTML()}else if(tab=="h"){
     html+=`<input id="q" placeholder="🔎 Ism yoki anime" value="${esc(q)}"><div class="chips"><span data-f="0" class="${flt==0?"on":""}">🌐 Hammasi</span>`
       +Object.keys(R).map(k=>`<span data-f="${k}" class="${flt==k?"on":""}">${R[k][0]} ${esc(R[k][1])}</span>`).join("")+"</div>";
     const L=h.filter(x=>(!flt||x[3]==flt)&&(x[1]+" "+x[2]).toLowerCase().includes(q.toLowerCase()));
-    html+=L.length?L.map(x=>`<div class="card row"><div><b>${(R[x[3]]||["🟠"])[0]} ${esc(x[1])}</b><div class="mu">🎬 ${esc(x[2])} · 🆔 ${x[0]}</div></div><div class="mu">x${x[4]}</div></div>`).join(""):'<p class="mu">Hech narsa topilmadi.</p>';
-    if(D.h&&h.length>=1)html+='<p class="mu" style="text-align:center">Ko‘p personajda ro‘yxat eng noyoblaridan boshlanadi. To‘liq ro‘yxat: /harem</p>';
+    html+=L.length?L.map(x=>`<div class="card row" style="align-items:center" data-id="${x[0]}">${th(x[0])}<div style="flex:1;min-width:0"><b>${(R[x[3]]||["🟠"])[0]} ${esc(x[1])}</b><div class="mu">🎬 ${esc(x[2])} · 🆔 ${x[0]}</div></div><div class="mu">x${x[4]}</div></div>`).join(""):'<p class="mu">Hech narsa topilmadi.</p>';
+    if(!D.live&&D.h&&h.length>=1)html+='<p class="mu" style="text-align:center">Ko‘p personajda ro‘yxat eng noyoblaridan boshlanadi. To‘liq ro‘yxat: /harem</p>';
   }else if(tab=="c"){
     html+='<p class="mu" style="text-align:center;margin:4px 0">Buyruqni bosing — nusxalanadi, botga yopishtiring</p>'
       +CMDS.map(x=>`<div class="card cmd" data-c="${esc(x[0]+(x[1]?" ":""))}"><code>${esc(x[0])}</code>${x[1]?` <span class="mu">${esc(x[1])}</span>`:""}<div class="mu">${esc(x[2])}</div></div>`).join("");
@@ -83,7 +101,66 @@ function draw(){
   document.querySelectorAll("[data-t]").forEach(e=>e.onclick=()=>{tab=e.dataset.t;draw()});
   document.querySelectorAll("[data-c]").forEach(e=>e.onclick=()=>copy(e.dataset.c).then(()=>toast("📋 Nusxalandi: "+e.dataset.c.trim())));
   document.querySelectorAll("[data-f]").forEach(e=>e.onclick=()=>{flt=+e.dataset.f;draw()});
+  const an=$("#addnew");if(an)an.onclick=()=>openSheet(0);
+  const mo=$("#more");if(mo)mo.onclick=()=>{lim+=60;draw()};
+  document.querySelectorAll("[data-id]").forEach(e=>e.onclick=()=>showBig(e.dataset.id));
   const i=$("#q");if(i)i.oninput=()=>{q=i.value;const p=i.selectionStart;draw();const n=$("#q");n.focus();n.setSelectionRange(p,p)};
 }
-load().then(d=>{D=d;draw()}).catch(()=>{$("#app").innerHTML='<div class="card">📱 Bu sahifani botdagi <b>/app</b> tugmasi orqali oching.</div>'});
-</script><div id="toast"></div></body></html>
+function th(id,big){return D.b?`<img class="${big?"gi":"ti"}" loading="lazy" src="${D.b}/img/${id}?t=1" onerror="this.style.visibility='hidden'">`:""}
+let IMG="",SBUSY=0;
+async function adm(b){const r=await fetch(D.b+"/api/admin",{method:"POST",headers:{"Content-Type":"text/plain"},body:JSON.stringify(Object.assign({a:tg.initData},b))});return r.json()}
+function pickImg(file,cb){const fr=new FileReader();fr.onload=()=>{const im=new Image();im.onload=()=>{const k=Math.min(1,1280/Math.max(im.width,im.height)),c=document.createElement("canvas");c.width=Math.round(im.width*k);c.height=Math.round(im.height*k);c.getContext("2d").drawImage(im,0,0,c.width,c.height);cb(c.toDataURL("image/jpeg",.86))};im.src=fr.result};fr.readAsDataURL(file)}
+function openSheet(id){
+  const x=id?((D.a||[]).find(z=>z[0]==id)||(D.h||[]).find(z=>z[0]==id)):null;
+  if(id&&!x)return;IMG="";
+  const R=D.r;
+  $("#sh").innerHTML=`<div class="shb"><b>${id?"✏️ Tahrirlash · 🆔 "+id:"➕ Yangi waifu"}</b>
+   <img id="shi" ${id?`src="${D.b}/img/${id}"`:'style="display:none"'}>
+   <input id="shn" placeholder="Ism" value="${id?esc(x[1]):""}">
+   <input id="sha" placeholder="Anime" value="${id?esc(x[2]):""}">
+   <select id="shr">${Object.keys(R).map(k=>`<option value="${k}" ${id&&x[3]==k?"selected":""}>${R[k][0]} ${esc(R[k][1])}</option>`).join("")}</select>
+   <input id="shf" type="file" accept="image/*">
+   <div id="shm"></div>
+   <button id="shs">💾 Saqlash</button>
+   ${id&&D.own?'<button class="bd" id="shd">🗑 O‘chirish</button>':""}
+   <button class="bx" id="shx">Yopish</button></div>`;
+  $("#sh").className="on";
+  const m=t=>{$("#shm").textContent=t};
+  $("#shx").onclick=()=>{$("#sh").className=""};
+  $("#shf").onchange=e=>{const f=e.target.files[0];if(!f)return;m("Rasm tayyorlanmoqda…");pickImg(f,u=>{IMG=u.split(",")[1];const i=$("#shi");i.src=u;i.style.display="block";m("")})};
+  $("#shs").onclick=async()=>{
+    if(SBUSY)return;
+    const name=$("#shn").value.trim(),anime=$("#sha").value.trim(),rarity=+$("#shr").value;
+    if(!name||!anime)return m("Ism va animeni yozing");
+    if(!id&&!IMG)return m("Rasm tanlang");
+    SBUSY=1;m("Yuborilmoqda…");
+    try{const r=await adm({op:id?"edit":"add",id,name,anime,rarity,img:IMG});
+      if(r.ok){$("#sh").className="";toast(id?"✅ Saqlandi":"✅ Qo‘shildi");live()}else m(r.err||"Xato")}
+    catch(e){m("Serverga ulanib bo‘lmadi")}
+    SBUSY=0};
+  const d=$("#shd");if(d)d.onclick=async()=>{
+    if(!confirm("Rostdan o‘chirilsinmi? Hamma kolleksiyadan ham o‘chadi."))return;
+    try{const r=await adm({op:"del",id});if(r.ok){$("#sh").className="";toast("🗑 O‘chirildi");live()}else m(r.err||"Xato")}catch(e){m("Serverga ulanib bo‘lmadi")}}
+}
+function showBig(id){if(D.adm){openSheet(id);return}const x=(D.a||[]).find(z=>z[0]==id)||(D.h||[]).find(z=>z[0]==id);if(!x||!D.b)return;
+  $("#mdl").innerHTML=`<img src="${D.b}/img/${id}"><b>${esc(x[1])}</b><span>${esc(x[2])} · 🆔 ${x[0]}</span>`;$("#mdl").className="on"}
+function catalogHTML(){
+  const R=D.r,A=D.a||[],own=new Set((D.h||[]).map(x=>x[0]));
+  if(!A.length)return '<p class="mu">Katalog yuklanmoqda… (internet yoki bot serveri kerak)</p>';
+  let h=(D.adm?'<button class="more" id="addnew">➕ Yangi waifu qo‘shish</button>':"")+`<input id="q" placeholder="🔎 Ism yoki anime" value="${esc(q)}"><div class="chips"><span data-f="0" class="${flt==0?"on":""}">🌐 Hammasi</span>`
+    +Object.keys(R).map(k=>`<span data-f="${k}" class="${flt==k?"on":""}">${R[k][0]} ${esc(R[k][1])}</span>`).join("")+"</div>";
+  const L=A.filter(x=>(!flt||x[3]==flt)&&(x[1]+" "+x[2]).toLowerCase().includes(q.toLowerCase()));
+  h+=`<p class="mu">Botdagi jami waifu: ${A.length} · sizda: ${own.size} (ramkali)</p><div class="grid">`
+    +L.slice(0,lim).map(x=>`<div class="gc${own.has(x[0])?" own":""}" data-id="${x[0]}">${th(x[0],1)}<b>${(R[x[3]]||["🟠"])[0]} ${esc(x[1])}</b><span class="mu">${esc(x[2])}</span></div>`).join("")+"</div>";
+  if(L.length>lim)h+='<button class="more" id="more">Yana ko‘rsatish</button>';
+  return h}
+let busy=0;
+async function live(){
+  if(busy||!D||!D.b||!tg||!tg.initData)return;busy=1;
+  try{const r=await fetch(D.b+"/api/app?a="+encodeURIComponent(tg.initData),{cache:"no-store"});
+    if(r.ok){const d=await r.json();d.live=1;D=d;const f=document.activeElement;if(!(f&&f.id=="q")&&$("#mdl").className!="on")draw()}}catch(e){}
+  busy=0}
+document.addEventListener("visibilitychange",()=>{if(!document.hidden)live()});
+setInterval(live,60000);
+load().then(d=>{D=d;draw();live()}).catch(()=>{$("#app").innerHTML='<div class="card">📱 Bu sahifani botdagi <b>/app</b> tugmasi orqali oching.</div>'});
+</script><div id="toast"></div><div id="sh"></div><div id="mdl" onclick="this.className=''"></div></body></html>
