@@ -71,6 +71,19 @@ input::placeholder{color:var(--mu)}
 #mdl.on img{animation:zm .35s ease,fl 3.2s ease-in-out .35s infinite}
 .bs .ti{animation:br 2.2s ease-in-out infinite}
 @media (prefers-reduced-motion:reduce){*,*::before,*::after{animation:none!important;transition:none!important}}
+@keyframes spn{to{transform:rotateY(360deg)}}
+@keyframes swg{0%,100%{transform:perspective(500px) rotateY(-14deg)}50%{transform:perspective(500px) rotateY(14deg)}}
+.cd3{perspective:900px;width:min(66vw,290px)}
+.cdi{position:relative;width:100%;aspect-ratio:3/4;transform-style:preserve-3d;animation:spn 8s linear infinite}
+.cd3.pz .cdi{animation-play-state:paused}
+.cdf,.cdb{position:absolute;inset:0;-webkit-backface-visibility:hidden;backface-visibility:hidden;border-radius:14px;overflow:hidden}
+#mdl .cdf img{width:100%;height:100%;max-height:none;object-fit:cover;border-radius:0;display:block}
+#mdl.on .cdf img{animation:none}
+#mdl.on .cd3{animation:zm .35s ease,fl 3.4s ease-in-out .35s infinite}
+.cdb{transform:rotateY(180deg);background:linear-gradient(145deg,#1b2340,#4a2f85);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:8px;padding:12px;border:2px solid rgba(255,255,255,.28)}
+.cdb .em{font-size:54px}
+.cd3.r3 .cdf{box-shadow:0 0 30px rgba(255,130,190,.7)}.cd3.r4 .cdf{box-shadow:0 0 32px rgba(80,220,255,.75)}.cd3.r6 .cdf{box-shadow:0 0 34px rgba(170,90,255,.85)}
+.r4 .gw,.r6 .gw{animation:swg 4.2s ease-in-out infinite}
 </style></head><body>
 <div id="app"><p class="mu">Yuklanmoqda…</p></div>
 <script>
@@ -152,10 +165,10 @@ function openSheet(id){
    <div id="shm"></div>
    <button id="shs">💾 Saqlash</button>
    ${id&&D.own?'<button class="bd" id="shd">🗑 O‘chirish</button>':""}
-   <button class="bx" id="shx">Yopish</button></div>`;
+   ${id?'<button id="shv">🔄 Aylanib ko‘rish</button>':""}<button class="bx" id="shx">Yopish</button></div>`;
   $("#sh").className="on";
   const m=t=>{$("#shm").textContent=t};
-  $("#shx").onclick=()=>{$("#sh").className=""};
+  $("#shx").onclick=()=>{$("#sh").className=""};const v=$("#shv");if(v)v.onclick=()=>{$("#sh").className="";viewBig(id)};
   $("#shf").onchange=e=>{const f=e.target.files[0];if(!f)return;m("Rasm tayyorlanmoqda…");pickImg(f,u=>{IMG=u.split(",")[1];const i=$("#shi");i.src=u;i.style.display="block";m("")})};
   $("#shs").onclick=async()=>{
     if(SBUSY)return;
@@ -171,8 +184,9 @@ function openSheet(id){
     if(!confirm("Rostdan o‘chirilsinmi? Hamma kolleksiyadan ham o‘chadi."))return;
     try{const r=await adm({op:"del",id});if(r.ok){$("#sh").className="";toast("🗑 O‘chirildi");live()}else m(r.err||"Xato")}catch(e){m("Serverga ulanib bo‘lmadi")}}
 }
-function showBig(id){if(D.adm){openSheet(id);return}const x=(D.a||[]).find(z=>z[0]==id)||(D.h||[]).find(z=>z[0]==id);if(!x||!D.b)return;
-  $("#mdl").innerHTML=`<img src="${D.b}/img/${id}"><b>${esc(x[1])}</b><span>${esc(x[2])} · 🆔 ${x[0]}</span>`;$("#mdl").className="on"}
+function showBig(id){if(D.adm){openSheet(id);return}viewBig(id)}
+function viewBig(id){const x=(D.a||[]).find(z=>z[0]==id)||(D.h||[]).find(z=>z[0]==id);if(!x||!D.b)return;const r=(D.r[x[3]]||["🟠",""]);
+  $("#mdl").innerHTML=`<div class="cd3 r${x[3]}" onclick="event.stopPropagation();this.classList.toggle('pz')"><div class="cdi"><div class="cdf"><img src="${D.b}/img/${id}"></div><div class="cdb"><div class="em">${r[0]}</div><b>${esc(x[1])}</b><span class="mu">${esc(x[2])}</span><span class="mu">${esc(r[1])}</span></div></div></div><b>${esc(x[1])}</b><span>${esc(x[2])} · 🆔 ${x[0]}</span><span class="mu">Kartani bosing — to‘xtaydi · tashqarini bosing — yopiladi</span>`;$("#mdl").className="on"}
 function catalogHTML(){
   const R=D.r,A=D.a||[],own=new Set((D.h||[]).map(x=>x[0]));
   if(!A.length)return '<p class="mu">Katalog yuklanmoqda… (internet yoki bot serveri kerak)</p>';
